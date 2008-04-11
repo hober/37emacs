@@ -62,7 +62,7 @@
 
 ;;; Code:
 
-(require 'rest-api) ;; http://edward.oconnor.cx/elisp/rest-api.el
+(require 'rest-api) ;; http://github.com/hober/37emacs/tree/master%2Frest-api.el?raw=true
 (require 'url)      ;; Tested with the URL package in CVS Emacs
 (require 'xml)      ;; xml.el in CVS Emacs
 
@@ -78,7 +78,7 @@
   :link '(url-link :tag "Backpack"
                    "http://backpackit.com/?referrer=BPWJ9")
   :link '(url-link :tag "Latest version of backpack.el"
-                   "http://edward.oconnor.cx/elisp/backpack.el")
+                   "http://github.com/hober/37emacs/tree/master%2Fbackpack.el?raw=true")
   :link '(url-link :tag "Backpack API documentation"
                    "http://www.backpackit.com/api/"))
 

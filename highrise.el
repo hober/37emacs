@@ -48,7 +48,7 @@
   :link '(url-link :tag "Highrise"
                    "http://www.highrisehq.com/")
   :link '(url-link :tag "Latest version of highrise.el"
-                   "http://edward.oconnor.cx/elisp/highrise.el")
+                   "http://github.com/hober/37emacs/tree/master%2Fhighrise.el?raw=true")
   :link '(url-link :tag "Highrise API documentation"
                    "http://developer.37signals.com/highrise/")
   :link '(url-link :tag "Highrise API discussion forum"
