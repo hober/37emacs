@@ -1,0 +1,2 @@
+# Ignore compiled emacs lisp files
+*.elc
