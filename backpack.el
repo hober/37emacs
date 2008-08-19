@@ -1,6 +1,6 @@
 ;;; backpack.el --- Emacs interface to 37signals' Backpack
 
-;; Copyright (C) 2005  Edward O'Connor <ted@oconnor.cx>
+;; Copyright (C) 2005, 2006, 2008  Edward O'Connor <ted@oconnor.cx>
 
 ;; Author: Edward O'Connor <ted@oconnor.cx>
 ;; Keywords: convenience
@@ -56,9 +56,24 @@
 ;; 2005-10-15 - Initial version.
 
 ;;; TODO:
-;; * support for belongings
-;; ** including support for reordering items on a page
-;; * implement missing methods (marked below).
+
+;; In general, the Backpack API has evolved over several revisions, and
+;; backpack.el has only partly kept up with the changes. In general, the
+;; API is moving away from POST-always, verbs-in-URLs model to a more
+;; RESTful situation, in which the same URL can be GET/POST/PUT/DELETEd
+;; for CRUD operations. Several core bits below need to be rethought
+;; given this: `backpack-request', `backpack-api-define', and
+;; potentially any method not implemented with `backpack-api-define'.
+
+;; Specific other TODO items include:
+
+;;   - Implement Users API
+;;   - Implement Statuses API
+;;   - Implement Journal API
+;;   - Implement Belongings API - including reordering items on a page
+;;   - Update Reminders API
+;;   - implement missing methods (marked below).
+;;   - Handle SSL redirects for pro accounts
 
 ;;; Code:
 
@@ -76,7 +91,7 @@
   :group 'processes
   :prefix "backpack-"
   :link '(url-link :tag "Backpack"
-                   "http://backpackit.com/?referrer=BPWJ9")
+                   "http://www.backpackit.com/?referrer=EDWARDOCONNOR")
   :link '(url-link :tag "Latest version of backpack.el"
                    "http://github.com/hober/37emacs/tree/master%2Fbackpack.el?raw=true")
   :link '(url-link :tag "Backpack API documentation"
@@ -324,6 +339,48 @@ PAYLOAD may contain extra arguments to certain API calls."
           emails)
     (nreverse retval)))
 
+;; TODO: `backpack-parse-statuses-list'
+;; <statuses type="array">
+;;   <status>
+;;     <id type="integer">...</id>
+;;     <message>...</message>
+;;     <updated-at type="datetime">...</updated-at>
+;;     <user-id type="integer">...</user-id>
+;;     <user>
+;;       <id type="integer">...</id>
+;;       <name>...</name>
+;;     </user>
+;;   </status>
+;;   ...
+;; </statuses>
+
+;; TODO: `backpack-parse-journal-entries-list'
+;; <journal-entries type="array">
+;;   <journal-entry>
+;;     <body>...</body>
+;;     <created-at type="datetime">...</created-at>
+;;     <id type="integer">...</id>
+;;     <updated-at type="datetime">...</updated-at>
+;;     <user>
+;;       <id type="integer">...</id>
+;;       <name>...</name>
+;;     </user>
+;;   </journal-entry>
+;;   ...
+;; </journal-entries>
+
+;; TODO: `backpack-parse-users-list'
+;; <users type="array">
+;;   <user>
+;;     <id type="integer">1234</id>
+;;     <name>John Doe</name>
+;;   </user>
+;;   <user>
+;;     <id type="integer">5678</id>
+;;     <name>Foo Bar</name>
+;;   </user>
+;; </user>
+
 ;; * Defining elisp functions corresponding to each API method
 
 (defmacro backpack-api-define (call args payload-args docstring
@@ -535,6 +592,7 @@ Page identified by PAGE-ID, note identified by NOTE-ID.")
   `((tags () ,(rest-api-join tags))))
 
 ;; ** Reminders
+;; TODO: update
 
 (defun backpack-api/reminders ()
   "Fetch a list of your Backpack reminders."
@@ -576,8 +634,31 @@ Page identified by PAGE-ID, note identified by NOTE-ID.")
 (backpack-api-define "/page/%s/emails/destroy/%s" (page-id email-id) ()
   "Delete PAGE-ID's email identified by EMAIL-ID.")
 
+;; ** Status
+
+(defun backpack-api/statuses ()
+  "List all statuses in your account.
+Users who have not posted a status will not be included."
+  (let ((r (backpack-request "/statuses")))
+    (backpack-parse-statuses-list r)))
+
+(backpack-api-define "/users/%s/status" (user-id) ()
+  "Get status of user whose id is USER-ID.")
+;; TODO: Same URL, but POST -- update status
+
+;; ** Journal
+;; TODO: /journal_entries.xml?n=0&count=100 GET
+;;       /users/#{user_id}/journal_entries.xml?n=0&count=100 GET
+;;       /journal_entries/#{id}.xml GET, PUT, DELETE
+;;       /users/#{user_id}/journal_entries.xml POST
+
+;; ** Users
+;; TODO: /#{token}/users.xml GET
+;;       /#{token}/users/${id}.xml GET
+
 ;; ** Account
 
+;; TODO: Deprecated by /#{token}/users/${id}.xml GET
 (defun backpack-api/account/export ()
   "Fetch a full export of your Backpack account."
   (let* ((r (backpack-request "/account/export"))
