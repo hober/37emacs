@@ -7,6 +7,10 @@ Emacs Lisp client libraries for various 37signals APIs.
 
 A client library for the Backpack API.
 
+### TODO
+
+* Implement the new journal API.
+
 ## highrise.el
 
 A client library for the Highrise API. Currently only supports reading
